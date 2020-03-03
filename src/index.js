@@ -1,17 +1,15 @@
 module.exports = function check(str, bracketsConfig) {
-    while (str) {
-        let initialLength = str.length;
-
-        for (const [left, right] of bracketsConfig) {
-            str = str.replace(RegExp(`${escapeRegExpSymbols(left)}${escapeRegExpSymbols(right)}`, 'g'), '');
-        }
-
-        if (initialLength === str.length) {
-            return false;
-        }
-    }
-
-    return true;
+    return isValidString(str, bracketsConfig.map(([l, r]) => [escapeRegExpSymbols(l), escapeRegExpSymbols(r)]));
 }
+
+let isValidString = (str, delimeters) => {
+    if (!str) {
+        return true;
+    }
+    let processedStr = vanishDelimiters(str, delimeters);
+    return processedStr === str ? false : isValidString(processedStr, delimeters);
+}
+
+let vanishDelimiters = (str, delimeters) => delimeters.reduce((processedStr, [l, r]) => processedStr.replace(RegExp(`${l}${r}`, 'g'), ''), str);
 
 let escapeRegExpSymbols = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
